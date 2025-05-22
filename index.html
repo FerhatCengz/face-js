@@ -1,136 +1,111 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yüz + Duygu Tanıma</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Akıllı Yüz Tanıma</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            primary: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              200: '#bae6fd',
-              300: '#7dd3fc',
-              400: '#38bdf8',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-              800: '#075985',
-              900: '#0c4a6e',
-            },
+            primary: '#6366f1',
+            secondary: '#4f46e5',
+            accent: '#818cf8',
+            dark: '#1e293b',
           }
         }
       }
     }
   </script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300">
-  <div id="app" class="container mx-auto px-4 py-8">
+
+<body class="bg-gray-100 min-h-screen">
+  <div id="app" class="max-w-5xl mx-auto p-4">
     <!-- Header -->
-    <header class="mb-8">
-      <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
-          <span class="text-primary-600 dark:text-primary-400">Yüz</span> ve Duygu Tanıma
-        </h1>
-        <button @click="toggleDarkMode" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-          <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
-        </button>
+    <header class="mb-6">
+      <div class="bg-gradient-to-r from-primary to-secondary rounded-lg shadow-lg p-6 text-white">
+        <h1 class="text-3xl font-bold">Akıllı Yüz Tanıma</h1>
+        <p class="opacity-90">Gerçek zamanlı yüz analizi ve tanıma teknolojisi</p>
       </div>
     </header>
 
     <!-- Main Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Video Feed Card -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Video Container -->
       <div class="lg:col-span-2">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Kamera Görüntüsü</h2>
-          </div>
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
           <div class="relative aspect-video">
-            <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-              <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-600"></div>
-            </div>
-            <video 
-              ref="video" 
-              class="w-full h-full object-cover" 
-              autoplay 
-              muted
-            ></video>
-            <canvas 
-              ref="canvas" 
-              class="absolute top-0 left-0 w-full h-full"
-            ></canvas>
+            <video ref="video" class="absolute inset-0 w-full h-full object-cover" autoplay muted></video>
+            <canvas ref="canvas" class="absolute inset-0 w-full h-full"></canvas>
           </div>
         </div>
       </div>
 
-      <!-- Info Card -->
-      <div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg h-full">
-          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Duygu Analizi</h2>
-          </div>
-          <div class="p-6">
-            <div v-if="loading" class="flex flex-col items-center justify-center py-8">
-              <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600 mb-4"></div>
-              <p class="text-gray-600 dark:text-gray-400">Modeller yükleniyor...</p>
-            </div>
-            <div v-else>
-              <div class="mb-6">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Durum</span>
-                  <span :class="`text-sm font-semibold px-2 py-1 rounded-full ${faceDetected ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`">
-                    {{ faceDetected ? 'Yüz Algılandı' : 'Yüz Algılanamadı' }}
-                  </span>
-                </div>
-              </div>
-
-              <div v-if="faceDetected" class="space-y-6">
-                <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-lg font-bold text-gray-800 dark:text-white">Ana Duygu</span>
-                    <span class="text-sm font-semibold px-2 py-1 rounded-full bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
-                      {{ emotionConfidence }}%
-                    </span>
-                  </div>
-                  <div class="text-2xl font-bold text-center py-3 text-primary-600 dark:text-primary-400">
-                    {{ translateEmotion(mainEmotion) }}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tüm Duygular</h3>
-                  <div class="space-y-2">
-                    <div v-for="(value, emotion) in emotions" :key="emotion" class="bg-gray-50 dark:bg-gray-800 rounded-md p-2">
-                      <div class="flex justify-between items-center mb-1">
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ translateEmotion(emotion) }}</span>
-                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ (value * 100).toFixed(1) }}%</span>
-                      </div>
-                      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-primary-600 dark:bg-primary-500 h-2 rounded-full" :style="`width: ${value * 100}%`"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div v-else class="flex flex-col items-center justify-center py-8 text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      <!-- Controls & Info Panel -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-lg p-5 h-full">
+          <!-- Reference Image Upload -->
+          <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">Referans Yüz</h2>
+            <label class="flex items-center justify-center w-full h-12 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-primary focus:outline-none">
+              <span class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                <p class="text-gray-600 dark:text-gray-400">Kamera görüntüsünde yüz algılanamadı.</p>
-                <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">Lütfen kameranın karşısına geçin ve yeterli ışık olduğundan emin olun.</p>
+                <span class="text-sm font-medium text-gray-600">
+                  Referans Yüz Yükle
+                </span>
+              </span>
+              <input type="file" accept="image/*" @change="onImageChange" class="hidden">
+            </label>
+            <div v-if="referenceLoaded" class="mt-2 flex items-center text-sm text-green-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              Referans Yüz Hazır
+            </div>
+          </div>
+
+          <!-- Analysis Results -->
+          <div class="space-y-4">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">Analiz Sonuçları</h2>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Age -->
+              <div class="bg-gray-50 p-3 rounded-lg">
+                <div class="text-sm text-gray-500">Yaş</div>
+                <div class="text-xl font-semibold text-gray-800">{{ age }}</div>
+              </div>
+              
+              <!-- Gender -->
+              <div class="bg-gray-50 p-3 rounded-lg">
+                <div class="text-sm text-gray-500">Cinsiyet</div>
+                <div class="text-xl font-semibold text-gray-800">{{ genderTr }}</div>
+              </div>
+              
+              <!-- Emotion -->
+              <div class="bg-gray-50 p-3 rounded-lg">
+                <div class="text-sm text-gray-500">Duygu</div>
+                <div class="text-xl font-semibold text-gray-800">{{ emotionTr }}</div>
+              </div>
+              
+              <!-- Match -->
+              <div v-if="matchLabel" class="bg-gray-50 p-3 rounded-lg">
+                <div class="text-sm text-gray-500">Eşleşme</div>
+                <div class="text-xl font-semibold" :class="matchPercentage > 80 ? 'text-green-600' : 'text-orange-500'">
+                  {{ matchPercentage }}%
+                </div>
               </div>
             </div>
           </div>
@@ -139,181 +114,191 @@
     </div>
 
     <!-- Footer -->
-    <footer class="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
-      <p>Yüz ve Duygu Tanıma Uygulaması &copy; 2024</p>
+    <footer class="mt-8 text-center text-gray-500 text-sm">
+      <p>Yüz tanıma teknolojisi &copy; 2025</p>
     </footer>
   </div>
 
-  <!-- Vue CDN -->
-  <script src="https://unpkg.com/vue@3.2.37/dist/vue.global.prod.js"></script>
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <!-- face-api.js -->
   <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-
   <script>
-    const { createApp, ref, onMounted, computed } = Vue;
+    const { createApp, ref, computed, onMounted } = Vue;
 
     createApp({
       setup() {
         const video = ref(null);
         const canvas = ref(null);
-        const loading = ref(true);
-        const faceDetected = ref(false);
-        const mainEmotion = ref('');
-        const emotionConfidence = ref(0);
-        const emotions = ref({});
-        const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
 
-        // Apply dark mode on initial load
-        if (isDarkMode.value) {
-          document.documentElement.classList.add('dark');
-        }
+        const age = ref('—');
+        const gender = ref('—');
+        const emotion = ref('—');
+        const matchLabel = ref('');
+        const matchDistance = ref(0);
+        const referenceLoaded = ref(false);
+        const faceMatcher = ref(null);
+        const isDetecting = ref(false);
 
-        const toggleDarkMode = () => {
-          isDarkMode.value = !isDarkMode.value;
-          localStorage.setItem('darkMode', isDarkMode.value);
-          
-          if (isDarkMode.value) {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
-        };
+        // Türkçe çeviriler
+        const genderTr = computed(() => {
+          if (gender.value === 'male') return 'Erkek';
+          if (gender.value === 'female') return 'Kadın';
+          return '—';
+        });
 
-        const translateEmotion = (emotion) => {
-          const translations = {
-            'neutral': 'Nötr',
-            'happy': 'Mutlu',
-            'sad': 'Üzgün',
-            'angry': 'Kızgın',
-            'fearful': 'Korkmuş',
-            'disgusted': 'İğrenmiş',
-            'surprised': 'Şaşkın'
+        const emotionTr = computed(() => {
+          const map = {
+            neutral: 'Nötr',
+            happy: 'Mutlu',
+            sad: 'Üzgün',
+            angry: 'Kızgın',
+            fearful: 'Korkmuş',
+            disgusted: 'İğrenmiş',
+            surprised: 'Şaşkın'
           };
-          return translations[emotion] || emotion;
+          return map[emotion.value] || '—';
+        });
+
+        const matchPercentage = computed(() => {
+          if (!matchLabel.value) return 0;
+          return ((1 - matchDistance.value) * 100).toFixed(1);
+        });
+
+        // 1) Modelleri yükle
+        const loadModels = async () => {
+          const M = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights/';
+
+          await faceapi.nets.tinyFaceDetector.loadFromUri(M);
+          await faceapi.nets.faceLandmark68TinyNet.loadFromUri(M);
+          await faceapi.nets.faceExpressionNet.loadFromUri(M);
+          await faceapi.nets.ageGenderNet.loadFromUri(M);
+          await faceapi.nets.faceRecognitionNet.loadFromUri(M);
         };
 
+        // 2) Kamerayı başlat
         const startVideo = async () => {
           try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
             video.value.srcObject = stream;
-          } catch (error) {
-            console.error('Kamera erişimi hatası:', error);
+          } catch (err) {
+            console.error('Kamera erişimi hatası:', err);
             alert('Kamera erişimi sağlanamadı. Lütfen kamera izinlerini kontrol edin.');
           }
         };
 
-        const loadModels = async () => {
+        // 3) Referans fotoğrafı seçildiğinde descriptor oluştur
+        const onImageChange = async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          
           try {
+            const img = await faceapi.bufferToImage(file);
+            const detection = await faceapi
+              .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+              .withFaceLandmarks(true)
+              .withFaceDescriptor();
+              
+            if (!detection) {
+              alert('Yüz algılanamadı, başka bir fotoğraf deneyin.');
+              return;
+            }
             
-            const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights/';
-            await Promise.all([
-              faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-              faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
-            ]);
-            loading.value = false;
-          } catch (error) {
-            console.error('Model yükleme hatası:', error);
-            alert('Modeller yüklenemedi. Lütfen internet bağlantınızı kontrol edin.');
+            const labeled = new faceapi.LabeledFaceDescriptors('Referans', [detection.descriptor]);
+            faceMatcher.value = new faceapi.FaceMatcher(labeled, 0.6);
+            referenceLoaded.value = true;
+          } catch (err) {
+            console.error('Referans yüz işleme hatası:', err);
+            alert('Referans yüz işlenirken bir hata oluştu.');
           }
         };
 
-        const detect = () => {
+        // 4) Sürekli tespit döngüsü
+        const detectLoop = () => {
+          if (isDetecting.value) return;
+          isDetecting.value = true;
+          
           const displaySize = { 
             width: video.value.clientWidth, 
             height: video.value.clientHeight 
           };
-          
-          canvas.value.width = displaySize.width;
-          canvas.value.height = displaySize.height;
-          
           faceapi.matchDimensions(canvas.value, displaySize);
 
           setInterval(async () => {
+            if (!video.value || !video.value.readyState === 4) return;
+            
             try {
-              const detections = await faceapi
-                .detectAllFaces(video.value, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
-                .withFaceExpressions();
+              // Hepsini bir arada tespit et
+              const results = await faceapi
+                .detectAllFaces(video.value, new faceapi.TinyFaceDetectorOptions())
+                .withFaceLandmarks(true)
+                .withFaceExpressions()
+                .withAgeAndGender()
+                .withFaceDescriptors();
 
-              const resized = faceapi.resizeResults(detections, displaySize);
+              const resized = faceapi.resizeResults(results, displaySize);
               const ctx = canvas.value.getContext('2d');
               ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
-              
-              // Draw with custom styling
-              if (resized.length > 0) {
-                // Custom box drawing
-                resized.forEach(detection => {
-                  const { box } = detection.detection;
-                  
-                  // Draw box with rounded corners
-                  ctx.beginPath();
-                  ctx.lineWidth = 3;
-                  ctx.strokeStyle = isDarkMode.value ? '#0ea5e9' : '#0284c7';
-                  ctx.setLineDash([]);
-                  
-                  // Draw rounded rectangle
-                  const radius = 8;
-                  ctx.moveTo(box.x + radius, box.y);
-                  ctx.lineTo(box.x + box.width - radius, box.y);
-                  ctx.quadraticCurveTo(box.x + box.width, box.y, box.x + box.width, box.y + radius);
-                  ctx.lineTo(box.x + box.width, box.y + box.height - radius);
-                  ctx.quadraticCurveTo(box.x + box.width, box.y + box.height, box.x + box.width - radius, box.y + box.height);
-                  ctx.lineTo(box.x + radius, box.y + box.height);
-                  ctx.quadraticCurveTo(box.x, box.y + box.height, box.x, box.y + box.height - radius);
-                  ctx.lineTo(box.x, box.y + radius);
-                  ctx.quadraticCurveTo(box.x, box.y, box.x + radius, box.y);
-                  ctx.closePath();
-                  ctx.stroke();
-                });
+
+              if (resized.length === 0) {
+                age.value = gender.value = emotion.value = '—';
+                matchLabel.value = '';
+                return;
               }
 
-              if (detections.length > 0) {
-                faceDetected.value = true;
-                emotions.value = detections[0].expressions;
-                const maxValue = Math.max(...Object.values(emotions.value));
-                mainEmotion.value = Object.keys(emotions.value).find(
-                  (key) => emotions.value[key] === maxValue
-                );
-                emotionConfidence.value = (maxValue * 100).toFixed(1);
-              } else {
-                faceDetected.value = false;
-                mainEmotion.value = '';
-                emotionConfidence.value = 0;
-                emotions.value = {};
+              // İlk yüzü ele al
+              const r = resized[0];
+
+              // Çizimler - daha şık görünüm için ayarlar
+              ctx.lineWidth = 2;
+              ctx.strokeStyle = '#6366f1'; // primary renk
+              faceapi.draw.drawDetections(canvas.value, [r]);
+              
+              ctx.strokeStyle = '#4f46e5'; // secondary renk
+              faceapi.draw.drawFaceLandmarks(canvas.value, [r]);
+
+              // Yaş & Cinsiyet
+              age.value = r.age.toFixed(0);
+              gender.value = r.gender;
+
+              // Duygu
+              const exp = r.expressions;
+              const top = Object.entries(exp).sort((a, b) => b[1] - a[1])[0];
+              emotion.value = top[0];
+
+              // Yüz karşılaştırma
+              if (faceMatcher.value) {
+                const best = faceMatcher.value.findBestMatch(r.descriptor);
+                matchLabel.value = best.label;
+                matchDistance.value = best.distance;
               }
-            } catch (error) {
-              console.error('Algılama hatası:', error);
+            } catch (err) {
+              console.error('Yüz tespit hatası:', err);
             }
-          }, 100);
+          }, 300);
         };
 
         onMounted(async () => {
-          await loadModels();
-          await startVideo();
-          video.value.addEventListener('play', detect);
-          
-          // Handle window resize
-          window.addEventListener('resize', () => {
-            if (canvas.value && video.value) {
-              canvas.value.width = video.value.clientWidth;
-              canvas.value.height = video.value.clientHeight;
-            }
-          });
+          try {
+            await loadModels();
+            await startVideo();
+            video.value.addEventListener('play', detectLoop);
+          } catch (err) {
+            console.error('Başlatma hatası:', err);
+            alert('Uygulama başlatılırken bir hata oluştu.');
+          }
         });
 
-        return { 
-          video, 
-          canvas, 
-          loading, 
-          faceDetected, 
-          mainEmotion, 
-          emotionConfidence, 
-          emotions, 
-          isDarkMode,
-          toggleDarkMode,
-          translateEmotion
+        return {
+          video, canvas,
+          age, gender, emotion,
+          genderTr, emotionTr,
+          matchLabel, matchDistance, matchPercentage,
+          onImageChange, referenceLoaded
         };
       }
     }).mount('#app');
   </script>
 </body>
+
 </html>
